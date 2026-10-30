@@ -11,6 +11,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      ANDROID_HOME: /usr/local/lib/android/sdk
+      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -21,15 +25,20 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Check Android SDK
+        run: |
+          echo "Checking Android SDK..."
+          ls "$ANDROID_HOME"
+          echo "SDK is available"
 
       - name: Extract Android project
         run: |
           mkdir extracted
           ZIP=$(find . -maxdepth 1 -name '*.zip' | head -n 1)
+          test -n "$ZIP"
           unzip -q "$ZIP" -d extracted
           WRAPPER=$(find extracted -name gradlew -type f | head -n 1)
+          test -n "$WRAPPER"
           echo "PROJECT_DIR=$(dirname "$WRAPPER")" >> $GITHUB_ENV
 
       - name: Build APK
